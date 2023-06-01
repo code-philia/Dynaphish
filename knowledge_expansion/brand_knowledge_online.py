@@ -1,8 +1,5 @@
-import logging
-from selenium.webdriver.remote.remote_connection import LOGGER
 import os
 import requests
-import selenium.common.exceptions
 import tldextract
 from PIL import Image
 import base64
@@ -306,6 +303,50 @@ class BrandKnowledgeConstruction():
 
         return logo, 'success'
 
+    def url2logo(self, driver, URL, url4logo=True):
+        '''
+            Get page's logo from an URL
+            Args:
+                URL:
+                url4logo: the URL is a logo image already or not
+        '''
+        try:
+            driver.get(URL, allow_redirections=False)
+            time.sleep(3)  # fixme: must allow some loading time here
+        except Exception as e:
+            return None, str(e)
+
+        # the URL is for a webpage not the logo image
+        if not url4logo:
+            try:
+                screenshot_encoding = driver.get_screenshot_encoding()
+                all_logos_coords = self.phishintention_wrapper.return_all_bboxes4type(screenshot_encoding, 'logo')
+                if all_logos_coords is None:
+                    return None, 'no_logo_prediction'
+                else:
+                    logo_coord = all_logos_coords[0]
+                    # try:
+                    screenshot_img = Image.open(io.BytesIO(base64.b64decode(screenshot_encoding)))
+                    screenshot_img = screenshot_img.convert("RGB")
+                    logo = screenshot_img.crop((logo_coord[0], logo_coord[1], logo_coord[2], logo_coord[3]))
+            except Exception as e:
+                return None, str(e)
+
+        else:  # the URL is directly pointing to a logo image
+            try:
+                logo_encoding = driver.find_element_by_tag_name('img').screenshot_as_base64
+                logo = Image.open(io.BytesIO(base64.b64decode(logo_encoding)))
+                logo = logo.convert("RGB")
+            except Exception:
+                try:
+                    logo_encoding = driver.get_screenshot_encoding()
+                    logo = Image.open(io.BytesIO(base64.b64decode(logo_encoding)))
+                    logo = logo.convert("RGB")
+                except Exception as e:
+                    return None, str(e)
+
+        return logo, 'success'
+
     def domain2brand(self, driver, q_domain, q_tld, reference_logo):
         '''
             Domain2brand branch (mainly designed for benign websites)
@@ -344,7 +385,7 @@ class BrandKnowledgeConstruction():
         start_time = time.time()
         logos_from_gsearch = []
         for URL in urls_from_gsearch:
-            logo, status = self.url2logo_antibot(driver=driver, URL=URL, url4logo=False)
+            logo, status = self.url2logo(driver=driver, URL=URL, url4logo=False)
             logos_from_gsearch.append(logo)
         print('Domain2brand crop the logo time:', time.time() - start_time)
 
@@ -460,7 +501,7 @@ class BrandKnowledgeConstruction():
         logos_from_gsearch = []
         logos_status = []
         for URL in urls_from_gsearch:
-            logo, status = self.url2logo_antibot(driver=driver, URL=URL, url4logo=False)
+            logo, status = self.url2logo(driver=driver, URL=URL, url4logo=False)
             logos_from_gsearch.append(logo)
             logos_status.append(status)
         print('crop the logo time:', time.time() - start_time)
@@ -576,7 +617,7 @@ class BrandKnowledgeConstruction():
         logos_from_gsearch = []
         logos_status = []
         for URL in urls_from_gsearch:
-            logo, status = self.url2logo_antibot(driver=driver, URL=URL, url4logo=False)
+            logo, status = self.url2logo(driver=driver, URL=URL, url4logo=False)
             logos_from_gsearch.append(logo)
             logos_status.append(status)
         print('Logo2brand crop the logo time:', time.time() - start_time)

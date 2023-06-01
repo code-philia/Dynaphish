@@ -8,25 +8,16 @@ from xdriver.xutils.WebInteraction import WebInteraction
 from xdriver.xutils.PhishIntentionWrapper import PhishIntentionWrapper
 from xdriver.xutils.forms.SubmissionButtonLocator import SubmissionButtonLocator
 from knowledge_expansion.brand_knowledge_online import BrandKnowledgeConstruction
-from mmocr.utils.ocr import MMOCR
+from mmocr.apis import MMOCRInferencer
 from field_study_logo2brand.dynaphish_main import DynaPhish
 import CONFIGS as configs
-import undetected_chromedriver as uc
 import json
+from xdriver.XDriver import XDriver
+os.environ["CUDA_VISIBLE_DEVICES"]="1,0"
 
 if __name__ == '__main__':
 
-    # FIXME: This is the anti-bot driver
-    _chromeOpts = uc.ChromeOptions()
-    _chromeOpts.add_argument("--no-sandbox")
-    _chromeOpts.add_argument("--disable-dev-shm-usage")
-    _chromeOpts.add_argument('--disable-gpu')
-    _chromeOpts.add_argument('--headless')
-    _chromeOpts.add_experimental_option('useAutomationExtension', False)
-    _chromeOpts.add_experimental_option("excludeSwitches", ["enable-automation"])
-    _chromeOpts.add_argument("--disable-blink-features=AutomationControlled")
-    driver = uc.Chrome(executable_path='/home/ruofan/git_space/phishing-research/web_interaction/xdriver3-open/browsers/config/webdrivers/chromedriver',
-                       options=_chromeOpts)
+    driver = XDriver.boot(chrome=True)
     time.sleep(3)
     driver.set_page_load_timeout(20)
     driver.set_script_timeout(20)
@@ -38,10 +29,9 @@ if __name__ == '__main__':
     API_KEY, SEARCH_ENGINE_ID = [x.strip() for x in open(configs.google_search_credentials).readlines()]
     KnowledgeExpansionModule = BrandKnowledgeConstruction(API_KEY, SEARCH_ENGINE_ID, PhishIntention)
 
-    mmocr_model = MMOCR(det=None,
-                        recog='ABINet',
-                        device='cuda',
-                        config_dir=configs.mmocr_config_path)
+    mmocr_model = MMOCRInferencer(det=None,
+                        rec='ABINet',
+                        device='cuda')
     button_locator_model = SubmissionButtonLocator(
         button_locator_config=configs.button_locator_config,
         button_locator_weights_path=configs.button_locator_weights_path)
@@ -100,9 +90,7 @@ if __name__ == '__main__':
 
         if (num+1) % 100 == 0:
             driver.quit()
-            driver = uc.Chrome(
-                executable_path='/home/ruofan/git_space/phishing-research/web_interaction/xdriver3-open/browsers/config/webdrivers/chromedriver',
-                options=_chromeOpts)
+            driver = XDriver.boot(chrome=True)
             time.sleep(3)
             driver.set_page_load_timeout(20)
             driver.set_script_timeout(20)

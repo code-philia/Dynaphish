@@ -12,7 +12,7 @@ from knowledge_expansion.utils import *
 import os
 from PIL import Image
 import numpy as np
-from mmocr.utils.ocr import MMOCR
+from mmocr.apis import MMOCRInferencer
 import time
 import cv2
 import re
@@ -22,9 +22,9 @@ import CONFIGS as configs
 from tqdm import tqdm
 from xdriver.XDriver import XDriver
 warnings.filterwarnings("ignore", category=UserWarning, module="torch.nn.functional")
+os.environ["CUDA_VISIBLE_DEVICES"]="1"
 # todo: fill in your Google service account
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = configs.google_cloud_json_credentials
-
 
 class DynaPhish():
 
@@ -366,7 +366,7 @@ class DynaPhish():
 
 
     def test_on_folder_dynaphish(self, result_txt, test_folder, base_model,
-                                  headless=True, knowledge_expansion=True,
+                                 process_num=5000, headless=True, knowledge_expansion=True,
                                  knowledge_expansion_branch='logo2brand'):
 
         if headless:
@@ -377,8 +377,7 @@ class DynaPhish():
         interaction_driver.set_script_timeout(self.timeout)
 
         if knowledge_expansion:
-            _chromeoptions = undetected_chrome_options()
-            kb_driver = uc.Chrome(options=_chromeoptions)
+            kb_driver = XDriver.boot(chrome=True)
             time.sleep(self.standard_sleeping_time)
             kb_driver.set_page_load_timeout(self.timeout)
             kb_driver.set_script_timeout(self.timeout)
@@ -395,7 +394,7 @@ class DynaPhish():
                 f.write("knowledge_discovery_branch" + "\t")
                 f.write("runtime_breakdown(PhishIntention|Knowledge_discovery|Web_interaction)" + "\n")
         #
-        for ct, folder in tqdm(enumerate(os.listdir(test_folder))):
+        for ct, folder in tqdm(enumerate(os.listdir(test_folder)[:min(process_num, len(os.listdir(test_folder)))])):
             Logger.set_debug_on()
             if folder in [x.split('\t')[0] for x in open(result_txt, encoding='ISO-8859-1').readlines()]:
                 continue
@@ -448,7 +447,7 @@ class DynaPhish():
                 interaction_driver.set_script_timeout(self.timeout)
             if knowledge_expansion and (ct+501)%500 == 0:
                 kb_driver.quit()
-                kb_driver = uc.Chrome(options=_chromeoptions)
+                kb_driver = XDriver.boot(chrome=True)
                 time.sleep(self.standard_sleeping_time)
                 kb_driver.set_page_load_timeout(self.timeout)
                 kb_driver.set_script_timeout(self.timeout)
@@ -478,10 +477,9 @@ if __name__ == '__main__':
     API_KEY, SEARCH_ENGINE_ID = [x.strip() for x in open(configs.google_search_credentials).readlines()]
     KnowledgeExpansionModule = BrandKnowledgeConstruction(API_KEY, SEARCH_ENGINE_ID, PhishIntention)
 
-    mmocr_model = MMOCR(det=None,
-                        recog='ABINet',
-                        device='cuda',
-                        config_dir=configs.mmocr_config_path)
+    mmocr_model = MMOCRInferencer(det=None,
+                                rec='ABINet',
+                                device='cuda')
     button_locator_model = SubmissionButtonLocator(
         button_locator_config=configs.button_locator_config,
         button_locator_weights_path=configs.button_locator_weights_path)
@@ -493,8 +491,6 @@ if __name__ == '__main__':
 
     dynaphish = DynaPhish(PhishIntention, phishintention_config_path, InteractionModel, KnowledgeExpansionModule)
 
-    # server_add = open('./field_study_logo2brand/server_address.txt').read()
-    # temp_test_folder = "./field_study_logo2brand/test_folder/"
     os.makedirs('./field_study_logo2brand/results/', exist_ok=True)
     if args.verbose:
         Logger.set_debug_on()
@@ -511,29 +507,6 @@ if __name__ == '__main__':
                                        base_model=args.base_model,
                                        knowledge_expansion_branch=args.branch)
 
-    # start_date = date(2023, 4, 15)
-    # end_date = start_date + timedelta(days=1)
-    # for single_date in daterange(start_date, end_date):
-    #     today_date = single_date.strftime("%Y-%m-%d")
-    #     print(today_date)
-    #     base_model = args.base_model
-    #     if base_model == 'phishintention':
-    #         result_txt = './field_study_logo2brand/results/{}_dynaintention.txt'.format(today_date)
-    #         dynaphish.test_on_folder_dynaphish(result_txt=result_txt,
-    #                                            test_folder=temp_test_folder, #os.path.join(server_add, today_date)
-    #                                            headless=args.headless,
-    #                                            base_model=base_model,
-    #                                            knowledge_expansion_branch=args.branch)
-    #     elif base_model == 'phishpedia':
-    #         result_txt = './field_study_logo2brand/results/{}_dynapedia.txt'.format(today_date)
-    #         dynaphish.test_on_folder_dynaphish(result_txt=result_txt,
-    #                                            test_folder=os.path.join(server_add, today_date),
-    #                                            headless=args.headless,
-    #                                            base_model=base_model,
-    #                                            knowledge_expansion=False,
-    #                                            knowledge_expansion_branch = args.branch)
-    #     else:
-    #         raise NotImplementedError
 
 
 

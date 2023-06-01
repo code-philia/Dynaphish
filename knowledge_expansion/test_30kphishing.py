@@ -47,7 +47,7 @@ if __name__ == '__main__':
     test_folder = '/home/ruofan/Downloads/phish_sample_30k'
     result_txt = './datasets/phish30k.txt'
 
-    for num, folder in tqdm(enumerate(os.listdir(test_folder))):
+    for num, folder in tqdm(enumerate(os.listdir(test_folder)[26000:])):
         # folder = 'Deutsche Bank AG+2020-08-20-13`15`30'
         shot_path = os.path.join(test_folder, folder, 'shot.png')
         info_path = os.path.join(test_folder, folder, 'info.txt')
@@ -69,6 +69,7 @@ if __name__ == '__main__':
             dynaphish.knowledge_expansion(driver=driver, URL=url,
                                           screenshot_path=shot_path,
                                           branch='logo2brand')
+        # exit()
         with open(result_txt, "a+", encoding='ISO-8859-1') as f:
             f.write(str(unidecode(folder)) + "\t")
             f.write(str(unidecode(url)) + "\t")

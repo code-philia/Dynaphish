@@ -1,13 +1,14 @@
 .vscode
 **/__pycache__
 **/geckodriver.log
-run_phishpedia/*.pkl
-run_phishpedia/*.zip
+*.pkl
+*.zip
+*.tar*
 field_study_domain2brand/expand_targetlist
 *.npz
 knowledge_expansion/deprecated/checkpoints/*
 knowledge_expansion/deprecated/wandb/*
 ./kits_full_unzip
 ./kits
-./datasets/
+
 

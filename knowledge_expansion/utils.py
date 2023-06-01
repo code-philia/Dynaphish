@@ -1,14 +1,10 @@
 import numpy as np
-# from faiss.contrib.vecs_io import fvecs_write, fvecs_read
-# import tables as pt
 import cv2
 from seleniumwire import webdriver
-from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 import re
 import sys
 from unidecode import unidecode
-import undetected_chromedriver as uc
 
 class OnlineForbiddenWord():
     IGNORE_DOMAINS = ['wikipedia', 'wiki',
@@ -37,38 +33,6 @@ class OnlineForbiddenWord():
                           'azurewebsites', 'dreamhost', 'proisp',
                           'accounting']
 
-
-# Method for fast conversion from a pytables array to a numpy array
-# def fast_conversion(hdfarray):
-#     a = np.empty(shape=hdfarray.shape, dtype=hdfarray.dtype)
-#     a[:] = hdfarray[:]
-#     return a[~np.all(a == 0, axis=1)]
-
-# def h5tofvecs(h5_path:str, fvecs_path:str):
-#     '''
-#         convert h5 file to fvec file
-#     '''
-#     h5 = pt.open_file(h5_path, 'r')
-#     carr = h5.root.carray
-#     # Conversion from a pytables array to a numpy array
-#     b = fast_conversion(carr)
-#     fvecs_write(fvecs_path, b)
-#     h5.close()
-
-
-def identity(x):
-    return {"image": x}
-
-def sanity_check_screenshot(shot_path:str):
-    try:
-        img = cv2.imread(shot_path, cv2.IMREAD_GRAYSCALE)
-        img_area = np.prod(img.shape)
-    except Exception as e:
-        return 'error'
-    white_area = np.sum(img == 255)
-    if white_area / img_area >= 0.8:  # skip white screenshots
-        return False # dirty
-    return True
 
 
 def initialize_chrome_settings(lang_txt:str):
@@ -213,13 +177,13 @@ def query_cleaning(query: str):
     query = query.translate(str.maketrans('', '', r"""!"#$%'()*+,-/:;<=>?@[\]^_`{|}~"""))
     return query
 
-def undetected_chrome_options():
-    _chromeOpts = uc.ChromeOptions()
-    _chromeOpts.add_argument("--no-sandbox")
-    _chromeOpts.add_argument("--disable-dev-shm-usage")
-    _chromeOpts.add_argument('--disable-gpu')
-    _chromeOpts.add_argument('--headless')
-    _chromeOpts.add_experimental_option('useAutomationExtension', False)
-    _chromeOpts.add_experimental_option("excludeSwitches", ["enable-automation"])
-    _chromeOpts.add_argument("--disable-blink-features=AutomationControlled")
-    return _chromeOpts
+# def undetected_chrome_options():
+#     _chromeOpts = uc.ChromeOptions()
+#     _chromeOpts.add_argument("--no-sandbox")
+#     _chromeOpts.add_argument("--disable-dev-shm-usage")
+#     _chromeOpts.add_argument('--disable-gpu')
+#     _chromeOpts.add_argument('--headless')
+#     _chromeOpts.add_experimental_option('useAutomationExtension', False)
+#     _chromeOpts.add_experimental_option("excludeSwitches", ["enable-automation"])
+#     _chromeOpts.add_argument("--disable-blink-features=AutomationControlled")
+#     return _chromeOpts
