@@ -15,10 +15,11 @@ mime
 unidecode
 faker
 googletrans
-h11==0.8.1
-selenium==4.0.0
+h11==0.13.0
+h2==4.1.0
+selenium==3.141.0
 pyopenssl==22.0.0
-selenium-wire
+selenium-wire==4.4.0
 psutil
 lxml
 helium
