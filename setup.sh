@@ -37,7 +37,6 @@ cd MyXdriver_pub
 chmod +x ./setup.sh
 ./setup.sh
 cd ../
-rm -rf MyXdriver_pub
 
 conda activate "$ENV_NAME"
 pip install -r requirements.txt
