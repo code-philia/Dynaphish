@@ -15,7 +15,7 @@ mime
 unidecode
 faker
 googletrans
-h11==0.13.0
+h11==0.8.1
 h2==4.1.0
 selenium==3.141.0
 pyopenssl==22.0.0

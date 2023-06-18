@@ -20,6 +20,8 @@ else
     conda create -n "$ENV_NAME" python=3.8
     conda activate "$ENV_NAME"
 fi
+# Set Conda environment as an environment variable
+export MYENV=$(conda info --base)/envs/"$ENV_NAME"
 
 # Install PhishIntention
 conda activate "$ENV_NAME"
@@ -39,6 +41,7 @@ chmod +x ./setup.sh
 cd ../
 
 conda activate "$ENV_NAME"
-pip install -r requirements.txt
+# Install packages within the Conda environment
+conda run -n "$ENV_NAME" pip install -r requirements.txt
 echo "All packages installed successfully!"
 
