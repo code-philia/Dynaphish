@@ -70,6 +70,7 @@ chmod +x update_config.sh
 
 4. The main script is field_study_logo2brand/dynaphish_main.py
 ```
+conda activate myenv
 python -m field_study_logo2brand.dynaphish_main --folder [folder_to_test, e.g. datasets/test_sites] 
 ```
 
