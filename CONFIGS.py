@@ -3,9 +3,9 @@ import os
 repo_dir = os.path.dirname(os.path.abspath(__file__))
 repo_dir_parent = os.path.dirname(repo_dir)
 
-mmocr_config_path = repo_dir_parent + "/MyXdriver/configs/"
-button_locator_config = repo_dir_parent + "/MyXdriver/xutils/forms/button_locator_models/config.yaml"
-button_locator_weights_path = repo_dir_parent + "/MyXdriver/xutils/forms/button_locator_models/model_final.pth"
+mmocr_config_path = repo_dir_parent + "/MyXdriver_pub/configs/"
+button_locator_config = repo_dir_parent + "/MyXdriver_pub/xutils/forms/button_locator_models/config.yaml"
+button_locator_weights_path = repo_dir_parent + "/MyXdriver_pub/xutils/forms/button_locator_models/model_final.pth"
 assert os.path.exists(mmocr_config_path)
 assert os.path.exists(button_locator_config)
 assert os.path.exists(button_locator_weights_path)
