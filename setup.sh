@@ -23,25 +23,34 @@ fi
 # Set Conda environment as an environment variable
 export MYENV=$(conda info --base)/envs/"$ENV_NAME"
 
-# Install PhishIntention
-conda activate "$ENV_NAME"
-git clone https://github.com/lindsey98/PhishIntention.git
-cd PhishIntention
-chmod +x ./setup.sh
-./setup.sh
-cd ../
-rm -rf PhishIntention
+# install phishintention
+PACKAGE_NAME="phishintention"
+installed_packages=$(conda run -n "$ENV_NAME" conda list)
+if echo "$installed_packages" | grep -q "$PACKAGE_NAME"; then
+  echo "PhishIntention is already installed, skip installation"
+else
+  git clone https://github.com/lindsey98/PhishIntention.git
+  cd PhishIntention
+  chmod +x ./setup.sh
+  ./setup.sh
+  cd ../
+  rm -rf PhishIntention
+fi
 
 ## Install MyXDriver
-conda activate "$ENV_NAME"
-git clone https://github.com/lindsey98/MyXdriver_pub.git
-cd MyXdriver_pub
-chmod +x ./setup.sh
-./setup.sh
-cd ../
+PACKAGE_NAME="xdriver"
+installed_packages=$(conda run -n "$ENV_NAME" conda list)
+if echo "$installed_packages" | grep -q "$PACKAGE_NAME"; then
+  echo "MyXdriver_pub is already installed, skip installation"
+else
+  git clone https://github.com/lindsey98/MyXdriver_pub.git
+  cd MyXdriver_pub
+  chmod +x ./setup.sh
+  ./setup.sh
+  cd ../
+fi
 
-conda activate "$ENV_NAME"
-# Install packages within the Conda environment
+# Install other requirements
 conda run -n "$ENV_NAME" pip install -r requirements.txt
 echo "All packages installed successfully!"
 
