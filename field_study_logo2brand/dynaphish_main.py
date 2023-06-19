@@ -479,7 +479,7 @@ if __name__ == '__main__':
 
     mmocr_model = MMOCRInferencer(det=None,
                                 rec='ABINet',
-                                device='cuda')
+                                device='cuda' if torch.cuda.is_available() else 'cpu')
     button_locator_model = SubmissionButtonLocator(
         button_locator_config=configs.button_locator_config,
         button_locator_weights_path=configs.button_locator_weights_path)
