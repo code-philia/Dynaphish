@@ -21,6 +21,7 @@ import warnings
 import CONFIGS as configs
 from tqdm import tqdm
 from xdriver.XDriver import XDriver
+import torch
 warnings.filterwarnings("ignore", category=UserWarning, module="torch.nn.functional")
 os.environ["CUDA_VISIBLE_DEVICES"]="1"
 # todo: fill in your Google service account
