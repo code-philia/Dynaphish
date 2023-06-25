@@ -445,7 +445,7 @@ class BrandKnowledgeConstruction():
                 comment = 'cannot_crop_logo'
 
         if len(company_urls):
-            company_domains = [tldextract.extract(x).domain for x in company_urls]
+            company_domains = [tldextract.extract(x).domain+'.'+tldextract.extract(x).suffix for x in company_urls]
         else:
             company_domains = []
         return company_domains, company_logos, comment
@@ -564,7 +564,7 @@ class BrandKnowledgeConstruction():
                 comment = 'cannot_crop_logo'
 
         if len(company_urls):
-            company_domains = [tldextract.extract(x).domain for x in company_urls]
+            company_domains = [tldextract.extract(x).domain+'.'+tldextract.extract(x).suffix for x in company_urls]
         else:
             company_domains = []
         return company_domains, company_logos, brand_name, comment
@@ -679,7 +679,7 @@ class BrandKnowledgeConstruction():
                 comment = 'cannot_crop_logo'
 
         if len(company_urls):
-            company_domains = [tldextract.extract(x).domain for x in company_urls]
+            company_domains = [tldextract.extract(x).domain+'.'+tldextract.extract(x).suffix for x in company_urls]
         else:
             company_domains = []
         return company_domains, company_logos, brand_name, comment
