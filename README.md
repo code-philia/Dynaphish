@@ -1,6 +1,6 @@
 # DynaPhish
 Official repository for "Knowledge Expansion and Counterfactual Interaction for Reference-Based Phishing Detection".
-Published in USENIX Security 2023.
+Published in USENIX Security 2023. 
 
 ## Introduction
 
