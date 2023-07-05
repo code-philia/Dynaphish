@@ -328,7 +328,7 @@ class BrandKnowledgeConstruction():
                     # try:
                     screenshot_img = Image.open(io.BytesIO(base64.b64decode(screenshot_encoding)))
                     screenshot_img = screenshot_img.convert("RGB")
-                    logo = screenshot_img.crop((logo_coord[0], logo_coord[1], logo_coord[2], logo_coord[3]))
+                    logo = screenshot_img.crop((int(logo_coord[0]), int(logo_coord[1]), int(logo_coord[2]), int(logo_coord[3])))
             except Exception as e:
                 return None, str(e)
 
