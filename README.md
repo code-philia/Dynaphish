@@ -12,7 +12,7 @@ Existing reference-based phishing detectors:
 In this work, we propose a framework called DynaPhish, as a complementary module for all reference-based phishing detectors. Our contributions lie in three folds:
 - :white_check_mark: We perform on-the-fly **knowledge expansion** of the reference list in an automatic manner, ensuring the reference list's coverage
 - :white_check_mark: We introduce the **behavioral intention**, which makes phishing decisions via observing the suspicious behaviors during the login action
-- :white_check_mark: We publish DynaPD, which includes 6K live phishing kits that are safe and interactable. We host a sampled version [here](http://ec2-13-49-66-89.eu-north-1.compute.amazonaws.com/).
+- :white_check_mark: We publish DynaPD, which includes 6K live phishing kits that are safe and interactable. We host a sampled version [**DynaPD**](http://ec2-13-49-66-89.eu-north-1.compute.amazonaws.com/).
 
 ## Framework
 
