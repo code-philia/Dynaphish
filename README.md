@@ -4,14 +4,14 @@ Published in USENIX Security 2023.
 
 <div align="center">
 
-![Dialogues](https://img.shields.io/badge/Current\_Dataset\_Size-6K-green?style=flat-square)
-
+![Dialogues](https://img.shields.io/badge/DynaPD\_Benchmark\_Size-6K-green?style=flat-square)
+![Dialogues](https://img.shields.io/badge/MyXdriver-Released-green?style=flat-square)
 
 </div>
 
 <p align="center">
-  <a href="http://ec2-13-49-66-89.eu-north-1.compute.amazonaws.com/">DynaPD Sampled Version</a> •
-  <a href="https://github.com/lindsey98/MyXdriver_pub">Selenium-based WebInteraction Driver</a> •
+  <a href="http://ec2-13-49-66-89.eu-north-1.compute.amazonaws.com/">Sampled DynaPD</a> •
+  <a href="https://github.com/lindsey98/MyXdriver_pub">WebInteraction Driver: MyXdriver</a> •
   <a href="https://www.usenix.org/conference/usenixsecurity23/presentation/liu-ruofan">Paper</a> •
   <a href="https://sites.google.com/view/dynlaphish-website">Website</a> •
   <a href="#citation">Citation</a>
@@ -36,7 +36,7 @@ In this work, we propose a framework called DynaPhish, as a complementary module
 
 Dynaphish consists of the following steps:
 - Step 1: Run the reference-based detector as normal.
-- Step 2: If the detector cannot recognize the phishing target, run the **Brand Knowledge Expansion** module, it will take the domain or the logo from the webpage, and search for the relevant brand with Google search API and Google OCR API.
+- Step 2: If the detector cannot recognize the phishing target, run the **Brand Knowledge Expansion** module. It will take the domain or the logo from the webpage, and search for the relevant brand with Google search API and Google OCR API.
 - Step 3: If a brand can be returned from the **Brand Knowledge Expansion** module, we will expand the reference list and re-run step 1.
 - Step 4: If the **Brand Knowledge Expansion** fails, we will run **Web Interaction**, this will check whether the webpage exhibits any suspicious behaviors during login.
 - Step 5: A phishing alarm will be raised if either the reference-based detector or the **Web Interaction** reports the webpage as phishing. 
@@ -55,25 +55,25 @@ Requirements
 - CUDA 11
 
 Implemented and tested on Ubuntu 16.04 and 20.04, CUDA 11.1, cuDNN 10.1. 
-Should work on other debian-based systems as well.
+Should work on other Debian-based systems as well.
 
 1. Install the required packages by
-```
+```bash
 chmod +x setup.sh
 ./setup.sh
 ```
 This script will create a new conda environment called **myenv**.
 
-2. Update the configuration file for knowledge expansion module
-```
+2. Update the configuration file for the knowledge expansion module
+```bash
 chmod +x update_config.sh
 ./update_config.sh
 ```
 
-3. Create a [google cloud service account](https://console.cloud.google.com/), setup the billing details
+3. Create a [google cloud service account](https://console.cloud.google.com/), set the billing details
     - Create a project, enable "Custom Search API", "Cloud Vision API"
     - For "Custom Search API", get the API Key and Search Engine ID following this [guide](https://developers.google.com/custom-search/v1/overview).
-    - Create a blank txt file in directory "knowledge_expansion/api_key.txt", copy and paste your API Key and Search Engine ID into the txt file like the following:
+    - Create a blank txt file in the directory "knowledge_expansion/api_key.txt", copy and paste your API Key and Search Engine ID into the txt file like the following:
      ```text 
       [YOUR_API_KEY]
       [YOUR_SEARCH_ENGINE_ID]
@@ -81,14 +81,14 @@ chmod +x update_config.sh
     - For "Cloud Vision API", download the JSON key following this [guide](https://cloud.google.com/vision/docs/setup), save the JSON file under "knowledge_expansion/discoverylabel.json"
 
 4. The main script is field_study_logo2brand/dynaphish_main.py
-```
+```bash
 conda activate myenv
 python -m field_study_logo2brand.dynaphish_main --folder [folder_to_test, e.g. datasets/test_sites] 
 ```
 
 ## Citation
-If you find our work useful, please consider cite our paper
-```
+If you find our work useful, please consider citing our paper :)
+```bibtex
 @inproceedings {291106,
     author = {Ruofan Liu and Yun Lin and Yifan Zhang and Penn Han Lee and Jin Song Dong},
     title = {Knowledge Expansion and Counterfactual Interaction for {Reference-Based} Phishing Detection},
