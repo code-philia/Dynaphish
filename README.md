@@ -2,6 +2,21 @@
 Official repository for "Knowledge Expansion and Counterfactual Interaction for Reference-Based Phishing Detection".
 Published in USENIX Security 2023. 
 
+<div align="center">
+
+![Dialogues](https://img.shields.io/badge/Current\_Dataset\_Size-6K-green?style=flat-square)
+
+
+</div>
+
+<p align="center">
+  <a href="http://ec2-13-49-66-89.eu-north-1.compute.amazonaws.com/">DynaPD Sampled Version</a> •
+  <a href="https://github.com/lindsey98/MyXdriver_pub">Selenium-based WebInteraction Driver</a> •
+  <a href="https://www.usenix.org/conference/usenixsecurity23/presentation/liu-ruofan">Paper</a> •
+  <a href="#citation">Citation</a>
+
+</p>
+
 ## Introduction
 
 Existing reference-based phishing detectors:
@@ -70,7 +85,7 @@ conda activate myenv
 python -m field_study_logo2brand.dynaphish_main --folder [folder_to_test, e.g. datasets/test_sites] 
 ```
 
-## References
+## Citation
 If you find our work useful, please consider cite our paper
 ```
 @inproceedings {291106,
