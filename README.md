@@ -10,7 +10,7 @@ Published in USENIX Security 2023.
 </div>
 
 <p align="center">
-  <a href="http://ec2-13-49-66-89.eu-north-1.compute.amazonaws.com/">Sampled DynaPD</a> •
+  <a href="https://drive.google.com/file/d/1o2Hgr3SvtcsVsMiB4gnSafMezc_4FSLa/view?usp=sharing">DynaPD 6K Phishing Kits</a> •
   <a href="https://github.com/lindsey98/MyXdriver_pub">WebInteraction Driver: MyXdriver</a> •
   <a href="https://www.usenix.org/conference/usenixsecurity23/presentation/liu-ruofan">Paper</a> •
   <a href="https://sites.google.com/view/dynlaphish-website">Website</a> •
@@ -28,7 +28,7 @@ Existing reference-based phishing detectors:
 In this work, we propose a framework called DynaPhish, as a complementary module for all reference-based phishing detectors. Our contributions lie in three folds:
 - :white_check_mark: We perform on-the-fly **knowledge expansion** of the reference list in an automatic manner, ensuring the reference list's coverage
 - :white_check_mark: We introduce the **behavioral intention**, which makes phishing decisions via observing the suspicious behaviors during the login action
-- :white_check_mark: We publish DynaPD, which includes 6K live phishing kits that are safe and interactable. We host a sampled version [**DynaPD**](http://ec2-13-49-66-89.eu-north-1.compute.amazonaws.com/).
+- :white_check_mark: We publish DynaPD, which includes 6K live phishing kits that are safe and interactable. Download from here: [**DynaPD**](https://drive.google.com/file/d/1o2Hgr3SvtcsVsMiB4gnSafMezc_4FSLa/view?usp=sharing).
 
 ## Framework
 
