@@ -26,7 +26,7 @@ installed_packages=$(conda run -n "$ENV_NAME" conda list)
 if echo "$installed_packages" | grep -q "$PACKAGE_NAME"; then
   echo "PhishIntention is already installed, skip installation"
 else
-  git clone https://github.com/lindsey98/PhishIntention.git
+  git clone -b development --single-branch https://github.com/lindsey98/PhishIntention.git
   cd PhishIntention
   chmod +x ./setup.sh
   ./setup.sh
