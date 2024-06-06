@@ -4,9 +4,6 @@
 CONDA_BASE=$(conda info --base)
 source "$CONDA_BASE/etc/profile.d/conda.sh"
 
-# Create a new conda environment with Python 3.8
-ENV_NAME="myenv"
-
 # Check if the environment already exists
 conda info --envs | grep -w "$ENV_NAME" > /dev/null
 
@@ -29,7 +26,7 @@ else
   git clone -b development --single-branch https://github.com/lindsey98/PhishIntention.git
   cd PhishIntention
   chmod +x ./setup.sh
-  ./setup.sh
+  export ENV_NAME="$ENV_NAME" && ../setup.sh
   cd ../
   rm -rf PhishIntention
 fi
@@ -43,7 +40,7 @@ else
   git clone https://github.com/lindsey98/MyXdriver_pub.git
   cd MyXdriver_pub
   chmod +x ./setup.sh
-  ./setup.sh
+  export ENV_NAME="$ENV_NAME" && ./setup.sh
   cd ../
 fi
 
