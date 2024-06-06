@@ -61,9 +61,9 @@ Should work on other Debian-based systems as well.
 1. Install the required packages by
 ```bash
 chmod +x setup.sh
-./setup.sh
+export ENV_NAME="dynaphish" && ./setup.sh
 ```
-This script will create a new conda environment called **myenv**.
+This script will create a new conda environment called **dynaphish**.
 
 2. Update the configuration file for the knowledge expansion module
 ```bash
@@ -83,7 +83,7 @@ chmod +x update_config.sh
 
 4. The main script is field_study_logo2brand/dynaphish_main.py
 ```bash
-conda activate myenv
+conda activate dynaphish
 python -m field_study_logo2brand.dynaphish_main --folder [folder_to_test, e.g. datasets/test_sites] 
 ```
 
