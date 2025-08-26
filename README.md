@@ -58,7 +58,6 @@ pip install --no-build-isolation git+https://github.com/facebookresearch/detectr
 cd knowledge_expansion/phishintention
 chmod +x setup.sh
 ./setup.sh
-sudo apt install -y libxss1 libappindicator3-1 libindicator7
 ```
 
 2. Create a [google cloud service account](https://console.cloud.google.com/), set the billing details
@@ -88,7 +87,7 @@ sudo apt install -y libxss1 libappindicator3-1 libindicator7
 3. Knowledge expansion
 ```bash
 conda activate dynaphish
-python -m knowledge_expansion.main --folder [folder_to_test, e.g. datasets/test_sites] 
+python knowledge_expansion/main.py --folder [folder_to_test, e.g. datasets/test_sites] 
 ```
 
 ## Citation
