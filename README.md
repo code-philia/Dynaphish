@@ -35,56 +35,60 @@ In this work, we propose a framework called DynaPhish, as a complementary module
 
 <img src="./overview.png">
 
-Dynaphish consists of the following steps:
-- Step 1: Run the reference-based detector as normal.
-- Step 2: If the detector cannot recognize the phishing target, run the **Brand Knowledge Expansion** module. It will take the domain or the logo from the webpage, and search for the relevant brand with Google search API and Google OCR API.
-- Step 3: If a brand can be returned from the **Brand Knowledge Expansion** module, we will expand the reference list and re-run step 1.
-- Step 4: If the **Brand Knowledge Expansion** fails, we will run **Web Interaction**, this will check whether the webpage exhibits any suspicious behaviors during login.
-- Step 5: A phishing alarm will be raised if either the reference-based detector or the **Web Interaction** reports the webpage as phishing. 
-
 ## Project Structure
+
+We include the knowledge expansion part in this repository.
+
 ```
 |_ knowledge_expansion: Knowledge Expansion Module
   |_ brand_knowledge_online.py: Knowledge Expansion Class
-|_ field_study_logo2brand: testing scripts
-  |_ configs_template.yaml: configuration file for the models
-  |_ dynaphish_main.py: main script
 ```
 
 ## Setup
-Requirements
-- CUDA 11
 
-Implemented and tested on Ubuntu 16.04 and 20.04, CUDA 11.1, cuDNN 10.1. 
-Should work on other Debian-based systems as well.
+Tested on Ubuntu, CUDA 11
 
 1. Install the required packages by
 ```bash
+conda create -n dynaphish python=3.10
+conda activate dynaphish
+pip install -r requirements.txt
+pip install torch==1.11.0+cu113 torchvision==0.12.0+cu113 torchaudio==0.11.0 --extra-index-url https://download.pytorch.org/whl/cu113
+pip install --no-build-isolation git+https://github.com/facebookresearch/detectron2.git
+cd knowledge_expansion/phishintention
 chmod +x setup.sh
-export ENV_NAME="dynaphish" && ./setup.sh
-```
-This script will create a new conda environment called **dynaphish**.
-
-2. Update the configuration file for the knowledge expansion module
-```bash
-chmod +x update_config.sh
-./update_config.sh
+./setup.sh
+sudo apt install -y libxss1 libappindicator3-1 libindicator7
 ```
 
-3. Create a [google cloud service account](https://console.cloud.google.com/), set the billing details
-    - Create a project, enable "Custom Search API", "Cloud Vision API"
-    - For "Custom Search API", get the API Key and Search Engine ID following this [guide](https://developers.google.com/custom-search/v1/overview).
-    - Create a blank txt file in the directory "knowledge_expansion/api_key.txt", copy and paste your API Key and Search Engine ID into the txt file like the following:
-     ```text 
-      [YOUR_API_KEY]
-      [YOUR_SEARCH_ENGINE_ID]
-     ```
-    - For "Cloud Vision API", download the JSON key following this [guide](https://cloud.google.com/vision/docs/setup), save the JSON file under "knowledge_expansion/discoverylabel.json"
+2. Create a [google cloud service account](https://console.cloud.google.com/), set the billing details
+- Create a project, enable "Custom Search API", "Cloud Vision API"
+- For "Custom Search API", get the API Key and Search Engine ID following this [guide](https://developers.google.com/custom-search/v1/overview).
+- Create a blank txt file in the directory ``knowledge_expansion/api_key.txt``, copy and paste your API Key and Search Engine ID into the txt file like the following:
+   ```text 
+    [YOUR_API_KEY]
+    [YOUR_SEARCH_ENGINE_ID]
+   ```
+- Create service account and create key follow this [guide](https://cloud.google.com/iam/docs/keys-create-delete#iam-service-account-keys-create-console), save the JSON to ``knowledge_expansion/discoverylabel.json``
+    ```text
+    {
+      "type": "service_account",
+      "project_id": "PROJECT_ID",
+      "private_key_id": "KEY_ID",
+      "private_key": "-----BEGIN PRIVATE KEY-----\nPRIVATE_KEY\n-----END PRIVATE KEY-----\n",
+      "client_email": "SERVICE_ACCOUNT_EMAIL",
+      "client_id": "CLIENT_ID",
+      "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+      "token_uri": "https://accounts.google.com/o/oauth2/token",
+      "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+      "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/SERVICE_ACCOUNT_EMAIL"
+    }
+    ```
 
-4. The main script is field_study_logo2brand/dynaphish_main.py
+3. Knowledge expansion
 ```bash
 conda activate dynaphish
-python -m field_study_logo2brand.dynaphish_main --folder [folder_to_test, e.g. datasets/test_sites] 
+python -m knowledge_expansion.main --folder [folder_to_test, e.g. datasets/test_sites] 
 ```
 
 ## Citation
