@@ -7,7 +7,7 @@ PROJECT_ROOT = os.path.abspath(os.path.join(CURRENT_DIR, ".."))  # /git_space/Dy
 if PROJECT_ROOT not in sys.path:
     sys.path.insert(0, PROJECT_ROOT)
 
-from knowledge_expansion.brand_knowledge_online import BrandKnowledgeConstruction
+from knowledge_expansion.brand_knowledge_online import BrandKnowledgeExpansion
 import os
 from PIL import Image
 import numpy as np
@@ -30,6 +30,7 @@ from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.options import Options
 from PIL import Image, ImageOps
 from torchvision import transforms
+import pickle
 warnings.filterwarnings("ignore", category=UserWarning, module="torch.nn.functional")
 # todo: fill in your Google service account
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = configs.google_cloud_json_credentials
@@ -98,25 +99,88 @@ class LogoEncoder(nn.Module):
         logo_feat = self.siamese_model.features(img_tensor, ocr_emb)
 
         # L2 normalize
-        logo_feat = l2_norm(logo_feat).squeeze(0)
+        logo_feat = l2_norm(logo_feat).squeeze(0).detach().cpu().numpy()
         return logo_feat
-    
+
+class BrandKnowledgeHandler():
+    def __init__(self, logo_features, logo_file_list, domain_map_path):
+        self.logo_features = logo_features
+        self.logo_file_list = logo_file_list
+        self.domain_map_path = domain_map_path
+
+    def brand_in_domainmap(self, new_brand):
+        with open(self.domain_map_path, 'rb') as handle:
+            domain_map = pickle.load(handle)
+        existing_brands = domain_map.keys()
+        if new_brand in existing_brands:
+            return domain_map, True
+        return domain_map, False
+
+    def logo_in_reflist(self, logo_feat):
+        if (self.logo_features @ logo_feat >= logo_encoder.matching_threshold).any():
+            return True
+        else:
+            return False
+
+    def expand_reference(self, new_brand, new_domains, new_logos, logo_encoder):
+        domain_map, domain_in_target = self.brand_in_domainmap(new_brand=new_brand)
+
+        if not domain_in_target:  # if this domain is not in targetlist ==> add it
+            domain_map[new_brand] = list(set(new_domains))
+            with open(self.domain_map_path, 'wb') as handle:
+                pickle.dump(domain_map, handle)
+
+        # expand logo list
+        valid_logo = [a for a in new_logos if a is not None]
+        if len(valid_logo) == 0:  # no valid logo
+            return
+
+        targetlist_path = os.path.commonpath(self.logo_file_list.tolist())
+        new_logo_save_folder = os.path.join(targetlist_path, new_brand)
+        os.makedirs(new_logo_save_folder, exist_ok=True)
+
+        exist_num_files = len(os.listdir(new_logo_save_folder))
+        new_logo_save_paths = []
+        for ct, logo in enumerate(valid_logo):
+            this_logo_save_path = os.path.join(new_logo_save_folder, '{}.png'.format(exist_num_files + ct))
+            if os.path.exists(this_logo_save_path):
+                this_logo_save_path = os.path.join(new_logo_save_folder, '{}_expand.png'.format(exist_num_files + ct))
+            logo.save(this_logo_save_path)
+            new_logo_save_paths.append(this_logo_save_path)
+
+        new_logo_feats = []
+        new_file_name_list = []
+
+        for logo_path in new_logo_save_paths:
+            new_logo_feats.append(logo_encoder(reference_logo))
+            new_file_name_list.append(str(logo_path))
+
+        agg_logo_feats     = self.logo_features.tolist() + new_logo_feats
+        agg_file_name_list = self.logo_file_list.tolist() + new_file_name_list
+
+        # update reference list
+        self.logo_features  = np.asarray(agg_logo_feats)
+        self.logo_file_list = np.asarray(agg_file_name_list)
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("--folder", required=True)
     args = parser.parse_args()
 
-    AWL_MODEL, SIAMESE_MODEL, OCR_MODEL, SIAMESE_THRE, LOGO_FEATS, LOGO_FILES, DOMAIN_MAP_PATH = load_config()
+    AWL_MODEL, SIAMESE_MODEL, OCR_MODEL, SIAMESE_THRE, \
+        LOGO_FEATS, LOGO_FILES, DOMAIN_MAP_PATH = load_config()
     logo_extractor = LogoDetector(AWL_MODEL)
 
     logo_encoder = LogoEncoder(SIAMESE_MODEL, OCR_MODEL, SIAMESE_THRE)
 
     API_KEY, SEARCH_ENGINE_ID = [x.strip() for x in open(configs.google_search_credentials).readlines()]
 
-    knowledge_expansion = BrandKnowledgeConstruction(
+    knowledge_expansion = BrandKnowledgeExpansion(
         API_KEY, SEARCH_ENGINE_ID,
         logo_extractor, logo_encoder
     )
+
+    bkb = BrandKnowledgeHandler(LOGO_FEATS, LOGO_FILES, DOMAIN_MAP_PATH)
 
     # Automatically downloads and manages the ChromeDriver
     options = Options()
@@ -139,22 +203,39 @@ if __name__ == '__main__':
         query_domain = tldextract.extract(URL).domain
         query_tld = tldextract.extract(URL).suffix
 
-        reference_logo, company_domains, brand_name, company_logos, branch_time, status = \
-            knowledge_expansion.run(webdriver=driver, shot_path=shot_path,
-                                    query_domain=query_domain, query_tld=query_tld,
-                                    type = 'domain2brand')
+        ## Check whether the logo is in reference list already
+        all_logos_coords = logo_extractor(shot_path)
+        if len(all_logos_coords) == 0:
+            continue
+        logo_coord = all_logos_coords[0]
+        screenshot_img = Image.open(shot_path)
+        screenshot_img = screenshot_img.convert("RGB")
+        reference_logo = screenshot_img.crop((int(logo_coord[0]), int(logo_coord[1]),
+                                              int(logo_coord[2]), int(logo_coord[3])))
+        logo_feat = logo_encoder(reference_logo)
+        in_reflist = bkb.logo_in_reflist(logo_feat)
 
-        # reference_logo, company_domains, brand_name, company_logos, branch_time, status = \
-        #     knowledge_expansion.run(webdriver=driver, shot_path=shot_path,
-        #                             query_domain=query_domain, query_tld=query_tld,
-        #                             type = 'logo2brand')
+        if not in_reflist:
+            ### Domain2brand (Popularity validation)
+            reference_logo, company_domains, brand_name, company_logos, branch_time, status = \
+                knowledge_expansion.run(webdriver=driver, shot_path=shot_path,
+                                        query_domain=query_domain, query_tld=query_tld,
+                                        type = 'domain2brand')
+            if brand_name is None:
+                ### Logo2brand (Representation validation)
+                reference_logo, company_domains, brand_name, company_logos, branch_time, status = \
+                    knowledge_expansion.run(webdriver=driver, shot_path=shot_path,
+                                            query_domain=query_domain, query_tld=query_tld,
+                                            type = 'logo2brand')
 
+                if brand_name is None:
+                    print("Cannot find brand")
+                    continue
 
+            company_logos.append(reference_logo)
 
-
-
-
-
-
+            ## Expand reference list
+            if len(company_logos):
+                bkb.expand_reference(brand_name, company_domains, company_logos, logo_encoder)
 
 

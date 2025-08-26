@@ -14,7 +14,7 @@ from typing import Union
 from torch import nn
 from selenium.webdriver.common.by import By
 
-class BrandKnowledgeConstruction():
+class BrandKnowledgeExpansion():
 
     def __init__(self,
                  Search_API: str, Search_ID: str,
