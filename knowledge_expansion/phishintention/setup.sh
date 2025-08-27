@@ -13,14 +13,14 @@ cd "$MODELS_DIR"
 if [ -f "layout_detector.pth" ]; then
   echo "layout_detector weights exists... skip"
 else
-  pixi run gdown --id "1HWjE5Fv-c3nCDzLCBc7I3vClP1IeuP_I" -O "layout_detector.pth"
+  gdown --id "1HWjE5Fv-c3nCDzLCBc7I3vClP1IeuP_I" -O "layout_detector.pth"
 fi
 
 # Faster RCNN config
 if [ -f "crp_classifier.pth.tar" ]; then
   echo "CRP classifier weights exists... skip"
 else
-  pixi run gdown --id "1igEMRz0vFBonxAILeYMRWTyd7A9sRirO" -O "crp_classifier.pth.tar"
+  gdown --id "1igEMRz0vFBonxAILeYMRWTyd7A9sRirO" -O "crp_classifier.pth.tar"
 fi
 
 
@@ -28,35 +28,35 @@ fi
 if [ -f "crp_locator.pth" ]; then
   echo "crp_locator weights exists... skip"
 else
-  pixi run gdown --id  "1_O5SALqaJqvWoZDrdIVpsZyCnmSkzQcm" -O "crp_locator.pth"
+  gdown --id  "1_O5SALqaJqvWoZDrdIVpsZyCnmSkzQcm" -O "crp_locator.pth"
 fi
 
 # Siamese model pretrained weights
 if [ -f "ocr_pretrained.pth.tar" ]; then
   echo "OCR pretrained model weights exists... skip"
 else
-  pixi run gdown --id "15pfVWnZR-at46gqxd50cWhrXemP8oaxp" -O "ocr_pretrained.pth.tar"
+  gdown --id "15pfVWnZR-at46gqxd50cWhrXemP8oaxp" -O "ocr_pretrained.pth.tar"
 fi
 
 # Siamese model finetuned weights
 if [ -f "ocr_siamese.pth.tar" ]; then
   echo "OCR-siamese weights exists... skip"
 else
-  pixi run gdown --id  "1BxJf5lAcNEnnC0In55flWZ89xwlYkzPk" -O "ocr_siamese.pth.tar"
+  gdown --id  "1BxJf5lAcNEnnC0In55flWZ89xwlYkzPk" -O "ocr_siamese.pth.tar"
 fi
 
 # Reference list
 if [ -f "expand_targetlist.zip" ]; then
   echo "Reference list exists... skip"
 else
-  pixi run gdown --id "1fr5ZxBKyDiNZ_1B6rRAfZbAHBBoUjZ7I" -O "expand_targetlist.zip"
+  gdown --id "1fr5ZxBKyDiNZ_1B6rRAfZbAHBBoUjZ7I" -O "expand_targetlist.zip"
 fi
 
 # Domain map
 if [ -f "domain_map.pkl" ]; then
   echo "Domain map exists... skip"
 else
-  pixi run gdown --id "1qSdkSSoCYUkZMKs44Rup_1DPBxHnEKl1" -O "domain_map.pkl"
+  gdown --id "1qSdkSSoCYUkZMKs44Rup_1DPBxHnEKl1" -O "domain_map.pkl"
 fi
 
 # Extract and flatten expand_targetlist
