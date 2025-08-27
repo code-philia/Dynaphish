@@ -208,7 +208,6 @@ if __name__ == '__main__':
                                         query_domain=query_domain,
                                         query_tld=query_tld,
                                         type = 'domain2brand')
-            brand_name = None # fixme
             if brand_name is None:
                 ### Logo2brand (Representation validation)
                 reference_logo, company_domains, brand_name, company_logos, branch_time, status = \
