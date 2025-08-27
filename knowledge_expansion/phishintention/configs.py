@@ -1,8 +1,8 @@
 # Global configuration
 import subprocess
 import yaml
-from .modules.awl_detector import config_rcnn
-from .modules.logo_matching import siamese_model_config, ocr_model_config, cache_reference_list
+from .modules import config_rcnn
+from .modules import siamese_model_config, ocr_model_config, cache_reference_list
 import os
 import numpy as np
 

@@ -10,9 +10,11 @@ import datetime
 import time
 from knowledge_expansion.google_safebrowsing import SafeBrowsing
 import pandas as pd
-from typing import Union
+from typing import Union, Tuple, Optional, Dict
 from torch import nn
 from selenium.webdriver.common.by import By
+from selenium.webdriver.remote.webdriver import WebDriver
+import numpy as np
 
 class BrandKnowledgeExpansion():
 
@@ -27,7 +29,7 @@ class BrandKnowledgeExpansion():
         self.logo_encoder   = logo_encoder
         self.logo_extractor = logo_extractor
 
-    def detect_text(self, img: Union[str, Image.Image]):
+    def detect_text(self, img: Union[str, Image.Image]) -> List[str]:
         """
             Google OCR
             Args:
@@ -62,10 +64,12 @@ class BrandKnowledgeExpansion():
                     response.error.message))
         return returned_strings
 
-    def query2url(self, query,
+    def query2url(self,
+                  query: str,
                   allowed_domains=[], forbidden_domains=[], forbidden_subdomains=[],
                   title_trucate=False,
-                  num=5):
+                  num=5
+                  ):
         '''
             Retrieve the URLs from Google search
             Args:
@@ -78,9 +82,9 @@ class BrandKnowledgeExpansion():
                 returned_brand_names: title of the websites
                 returned_pub_dates: publication dates of the websites
         '''
-        returned_urls = []
-        returned_titles = []
-        returned_pub_dates = []
+        returned_urls: List[str] = []
+        returned_titles: List[str] = []
+        returned_pub_dates: List[datetime] = []
         if len(query) == 0 or query is None:
             return returned_urls, returned_titles, returned_pub_dates
 
@@ -135,7 +139,10 @@ class BrandKnowledgeExpansion():
                returned_titles[:min(len(returned_titles), num)], \
                returned_pub_dates[:min(len(returned_pub_dates), num)]
 
-    def url2logo(self, driver, URL, url4logo=True):
+    def url2logo(self,
+                 driver: WebDriver,
+                 URL: str,
+                 url4logo=True) -> Tuple[Optional[Image.Image], str]:
         '''
             Get page's logo from an URL
             Args:
@@ -180,7 +187,11 @@ class BrandKnowledgeExpansion():
 
         return logo, 'success'
 
-    def domain2brand(self, driver, q_domain, q_tld, reference_logo):
+    def domain2brand(self,
+                     driver: WebDriver,
+                     q_domain: str,
+                     q_tld: str,
+                     reference_logo: Image.Image) -> Tuple[List[str], List[Optional[Image.Image]], str]:
         '''
             Domain2brand branch (mainly designed for benign websites)
             Args:
@@ -193,9 +204,9 @@ class BrandKnowledgeExpansion():
                 comment: comment on failure reasons
         '''
 
-        company_urls = []
-        company_logos = []
-        company_titles = []
+        company_urls: List[str] = []
+        company_logos: List[Optional[Image.Image]] = []
+        company_titles: List[str] = []
         comment = ''
 
         # search for domain.tld directly in Google
@@ -286,7 +297,15 @@ class BrandKnowledgeExpansion():
             company_domains = []
         return company_domains, company_logos, comment
 
-    def logo2brand(self, driver, logo_path, reference_logo, q_domain, q_tld):
+    def logo2brand(self,
+                   driver: WebDriver,
+                   logo_path: str,
+                   reference_logo: Image.Image,
+                   q_domain: str,
+                   q_tld: str) -> Tuple[List[str],
+                                        List[Optional[Image.Image]],
+                                        Union[List[str], str],
+                                        str]:
         '''
             Logo2brand branch via OCR (mainly designed for suspicious websites)
             Args:
@@ -407,9 +426,13 @@ class BrandKnowledgeExpansion():
             company_domains = []
         return company_domains, company_logos, brand_name, comment
 
-    def knowledge_validation(self, reference_logo, logo_list,
-                             reference_domain, domain_list,
-                             reference_tld, tld_list):
+    def knowledge_validation(self,
+                             reference_logo: Image.Image,
+                             logo_list: List[Image.Image],
+                             reference_domain: str,
+                             domain_list: List[str],
+                             reference_tld: str,
+                             tld_list: List[str]) -> Tuple[List[int], List[int]]:
         '''
             Knowledge validation
             Args:
@@ -446,12 +469,17 @@ class BrandKnowledgeExpansion():
 
         return domain_matched_indices, logo_matched_indices
 
-    def blacklist_lookup(self, urls):
+    def blacklist_lookup(self, urls: List[str]) -> Dict:
         gsb = SafeBrowsing(self.Search_API)
         results = gsb.lookup_urls(urls)
         return results
 
-    def run(self, webdriver, shot_path, query_domain, query_tld, type='logo2brand'):
+    def run(self,
+            webdriver: WebDriver,
+            shot_path: str,
+            query_domain: str,
+            query_tld: str, type='logo2brand'
+            ) -> Tuple[Optional[Image.Image], Optional[List[str]], Optional[str], Optional[List[Optional[Image.Image]]], Optional[float], str]:
 
         all_logos_coords = self.logo_extractor(shot_path)
         if len(all_logos_coords) == 0:

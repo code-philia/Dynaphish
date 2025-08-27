@@ -86,20 +86,6 @@ class SafeBrowsing(object):
                         else:
                             results[url] = {"malicious": False}
             else:
-                # if r.status_code == 400:
-                #     print(r.json())
-                #     if r.json()['error']['message'] == 'API key not valid. Please pass a valid API key.':
-                #         raise SafeBrowsingInvalidApiKey()
-                #     else:
-                #         raise SafeBrowsingWeirdError(
-                #             r.json()['error']['code'],
-                #             r.json()['error']['status'],
-                #             r.json()['error']['message'],
-                #         )
-                # elif r.status_code == 403:
-                #     raise SafeBrowsingPermissionDenied(r.json()['error']['message'])
-                # else:
-                #     raise SafeBrowsingWeirdError(r.status_code, "", "", "")
                 results.update(dict([(u, {"malicious": False}) for u in urls]))
                 continue
 
@@ -112,53 +98,3 @@ class SafeBrowsing(object):
         r = self.lookup_urls([url], platforms=platforms)
         return r[url]
 
-
-if __name__ == '__main__':
-    from tqdm import tqdm
-    import os
-    import tldextract
-    API_KEY, SEARCH_ENGINE_ID = [x.strip() for x in open('./knowledge_expansion/api_key.txt').readlines()]
-    gsb = SafeBrowsing(API_KEY)
-
-    # test_folder = './datasets/phish_sample_30k'
-    # lookup_urls = []
-    # lookup_folders = []
-    # for num, folder in tqdm(enumerate(os.listdir(test_folder))):
-    #
-    #     shot_path = os.path.join(test_folder, folder, 'shot.png')
-    #     info_path = os.path.join(test_folder, folder, 'info.txt')
-    #     url = eval(open(info_path, encoding='ISO 8859-1').read())['url']
-    #     query_domain = tldextract.extract(url).domain
-    #     query_tld = tldextract.extract(url).suffix
-    #
-    #     lookup_url = 'https://'+query_domain+'.'+query_tld
-    #     lookup_urls.append(lookup_url)
-    #     lookup_folders.append(folder)
-
-    # for ct, urll in enumerate(chunks(lookup_urls, 50)):
-        # results = gsb.lookup_urls(urll)
-        # with open("./datasets/gsb_lookup_phish30k_{}.json".format(ct), "w") as fp:
-        #     json.dump(results, fp)
-
-    # results = {}
-    # for chunk_ct, urll in enumerate(chunks(lookup_urls, 50)):
-    #     with open("./datasets/gsb_lookup_phish30k_{}.json".format(chunk_ct), "r") as fp:
-    #         results_this = json.load(fp)
-    #     results.update(results_this)
-    #
-    # ct = 0
-    # for num, folder in tqdm(enumerate(os.listdir(test_folder))):
-    #
-    #     shot_path = os.path.join(test_folder, folder, 'shot.png')
-    #     info_path = os.path.join(test_folder, folder, 'info.txt')
-    #     url = eval(open(info_path, encoding='ISO 8859-1').read())['url']
-    #     query_domain = tldextract.extract(url).domain
-    #     query_tld = tldextract.extract(url).suffix
-    #
-    #     lookup_url = 'https://'+query_domain+'.'+query_tld
-    #     if results[lookup_url]['malicious'] == False:
-    #         ct += 1
-    #         # shutil.rmtree(os.path.join())
-    # print(ct)
-
-    print(gsb.lookup_url('https://whisperingpinescottages.ca/'))
