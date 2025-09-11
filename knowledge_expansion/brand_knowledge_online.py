@@ -3,7 +3,6 @@ import requests
 import tldextract
 from PIL import Image
 import base64
-from google.cloud import vision
 import io
 from knowledge_expansion.utils import *
 import datetime
@@ -16,53 +15,38 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.remote.webdriver import WebDriver
 import numpy as np
 
+from doubao_client import DoubaoClient
+
 class BrandKnowledgeExpansion():
 
     def __init__(self,
                  Search_API: str, Search_ID: str,
                  logo_extractor: nn.Module,
-                 logo_encoder: nn.Module
+                 logo_encoder: nn.Module,
+                 api_key, 
+                 api_base="https://ark.cn-beijing.volces.com/api/v3"
              ):
         self.Search_API = Search_API  # API key for Gsearch
         self.Search_ID = Search_ID  # ID for Gsearch engine
-        self.client = vision.ImageAnnotatorClient()  # Google Cloud Vision
         self.logo_encoder   = logo_encoder
         self.logo_extractor = logo_extractor
+        self.client = DoubaoClient(api_key=api_key, api_base=api_base)
 
-    def detect_text(self, img: Union[str, Image.Image]) -> List[str]:
+    def detect_text(self, image_path: str) -> str:
         """
-            Google OCR
-            Args:
-                path: path to image
+        Use the Doubao model to recognize text in a logo.
+        Returns the recognized brand name (string), or "" if unsuccessful.
         """
-        client = self.client
-        if isinstance(img, str):
-            with io.open(img, 'rb') as image_file:
-                content = image_file.read()
-        else:
-            b = io.BytesIO()
-            img.save(b, 'jpeg')
-            content = b.getvalue()
-
-        image = vision.Image(content=content)
-
-        response = client.text_detection(image=image,
-                                         image_context={
-                                             "language_hints": ["en-t-i0-handwrit",
-                                                                "zh-t-i0-handwrit",
-                                                                "ja-t-i0-handwrit"]}
-                                         )  # support chinese and japanese
-        texts = response.text_annotations
-        returned_strings = []
-        for text in texts:
-            returned_strings.append(text.description)
-
-        if response.error.message:
-            raise Exception(
-                '{}\nFor more info on error messages, check: '
-                'https://cloud.google.com/apis/design/errors'.format(
-                    response.error.message))
-        return returned_strings
+        try:
+            return self.client.call_model(
+                model_name="doubao-seed-1-6-vision-250815",
+                image_path=image_path,
+                prompt="Please identify the brand name in this logo. Only output the brand name."
+            )
+        except Exception as e:
+            print(f"[ERROR] detect_text Call failed: {e}")
+            return ""
+        
 
     def query2url(self,
                   query: str,
@@ -298,14 +282,14 @@ class BrandKnowledgeExpansion():
         return company_domains, company_logos, comment
 
     def logo2brand(self,
-                   driver: WebDriver,
-                   logo_path: str,
-                   reference_logo: Image.Image,
-                   q_domain: str,
-                   q_tld: str) -> Tuple[List[str],
-                                        List[Optional[Image.Image]],
-                                        Union[List[str], str],
-                                        str]:
+               driver: WebDriver,
+               logo_path: str,
+               reference_logo: Image.Image,
+               q_domain: str,
+               q_tld: str) -> Tuple[List[str],
+                                    List[Optional[Image.Image]],
+                                    Union[List[str], str],
+                                    str]:
         '''
             Logo2brand branch via OCR (mainly designed for suspicious websites)
             Args:
@@ -323,9 +307,11 @@ class BrandKnowledgeExpansion():
         company_logos = []
         comment = ''
 
-        # Google OCR
+        # OCR doubao
         start_time = time.time()
         brand_name = self.detect_text(logo_path)
+        if isinstance(brand_name, list):
+            brand_name = brand_name[0] if len(brand_name) else ""
         if len(brand_name):
             brand_name = query_cleaning(brand_name[0])
             if len(brand_name) <= 1:
@@ -334,7 +320,7 @@ class BrandKnowledgeExpansion():
         else:
             comment = 'no_result_from_OCR'
             return company_domains, company_logos, brand_name, comment
-        print('Google OCR time:', time.time() - start_time)
+        print('OCR time:', time.time() - start_time)
         print('Brand name:', brand_name)
 
         # Search OCR text in Google
@@ -374,12 +360,14 @@ class BrandKnowledgeExpansion():
             logo_domains = [tldextract.extract(x).domain for x in urls_from_gsearch]
             logo_tlds = [tldextract.extract(x).suffix for x in urls_from_gsearch]
 
-            domain_matched_indices, logo_matched_indices = self.knowledge_validation(reference_logo=reference_logo,
-                                                                                     logo_list=logos_from_gsearch,
-                                                                                     reference_domain=q_domain,
-                                                                                     domain_list=logo_domains,
-                                                                                     reference_tld=q_tld,
-                                                                                     tld_list=logo_tlds)
+            domain_matched_indices, logo_matched_indices = self.knowledge_validation(
+                reference_logo=reference_logo,
+                logo_list=logos_from_gsearch,
+                reference_domain=q_domain,
+                domain_list=logo_domains,
+                reference_tld=q_tld,
+                tld_list=logo_tlds
+            )
 
             domain_or_logo_matched_indices = list(set(domain_matched_indices + logo_matched_indices))
             if len(domain_or_logo_matched_indices) == 0:
@@ -387,9 +375,10 @@ class BrandKnowledgeExpansion():
                 for it, logo in enumerate(logos_from_gsearch):
                     if logo is not None:
                         brand_name_knowledge_site = self.detect_text(logo)
+                        if isinstance(brand_name_knowledge_site, list):
+                            brand_name_knowledge_site = brand_name_knowledge_site[0] if len(brand_name_knowledge_site) else ""
                         if len(brand_name_knowledge_site) > 0 and \
-                                brand_name_knowledge_site[0].lower().replace(' ', '') == brand_name.lower().replace(' ',
-                                                                                                                    ''):
+                                brand_name_knowledge_site.lower().replace(' ', '') == brand_name.lower().replace(' ', ''):
                             domain_or_logo_matched_indices.append(it)
 
             logos_from_gsearch = [logos_from_gsearch[a] for a in domain_or_logo_matched_indices]
