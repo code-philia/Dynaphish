@@ -69,15 +69,13 @@ chmod +x setup.sh
     [YOUR_SEARCH_ENGINE_ID]
    ```
 
-3. Create and apply for a Doubao API Key at [火山引擎](https://console.volcengine.com/ark)
+3. Register and obtain a Doubao API Key via [Volcengine Ark Console](https://console.volcengine.com/ark).
+- Navigate to “模型广场” (Model Marketplace).
+- Select “Doubao-Seed-1.6-vision”.
+- Follow the “API接入” (API Access) instructions to generate your API key.
 - Set environment variable:
-Linux / macOS:
 ```bash
 export DOUBAO_API_KEY="your_api_key_here"
-```
-Windows PowerShell:
-```powershell
-setx DOUBAO_API_KEY "your_api_key_here"
 ```
 
 4. Knowledge expansion
