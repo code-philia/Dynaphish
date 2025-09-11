@@ -61,30 +61,26 @@ chmod +x setup.sh
 ```
 
 2. Create a [google cloud service account](https://console.cloud.google.com/), set the billing details
-- Create a project, enable "Custom Search API", "Cloud Vision API"
+- Create a project, enable "Custom Search API"
 - For "Custom Search API", get the API Key and Search Engine ID following this [guide](https://developers.google.com/custom-search/v1/overview).
 - Create a blank txt file in the directory ``knowledge_expansion/api_key.txt``, copy and paste your API Key and Search Engine ID into the txt file like the following:
    ```text 
     [YOUR_API_KEY]
     [YOUR_SEARCH_ENGINE_ID]
    ```
-- Create service account and create key follow this [guide](https://cloud.google.com/iam/docs/keys-create-delete#iam-service-account-keys-create-console), save the JSON to ``knowledge_expansion/discoverylabel.json``
-    ```text
-    {
-      "type": "service_account",
-      "project_id": "PROJECT_ID",
-      "private_key_id": "KEY_ID",
-      "private_key": "-----BEGIN PRIVATE KEY-----\nPRIVATE_KEY\n-----END PRIVATE KEY-----\n",
-      "client_email": "SERVICE_ACCOUNT_EMAIL",
-      "client_id": "CLIENT_ID",
-      "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-      "token_uri": "https://accounts.google.com/o/oauth2/token",
-      "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
-      "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/SERVICE_ACCOUNT_EMAIL"
-    }
-    ```
 
-3. Knowledge expansion
+3. Create and apply for a Doubao API Key at [火山引擎](https://console.volcengine.com/ark)
+-Set environment variable:
+Linux / macOS:
+```bash
+export DOUBAO_API_KEY="your_api_key_here"
+```
+Windows PowerShell:
+```powershell
+setx DOUBAO_API_KEY "your_api_key_here"
+```
+
+4. Knowledge expansion
 ```bash
 conda activate dynaphish
 python knowledge_expansion/main.py --folder [folder_to_test, e.g. datasets/test_sites] 
