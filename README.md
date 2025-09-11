@@ -70,7 +70,7 @@ chmod +x setup.sh
    ```
 
 3. Create and apply for a Doubao API Key at [火山引擎](https://console.volcengine.com/ark)
--Set environment variable:
+- Set environment variable:
 Linux / macOS:
 ```bash
 export DOUBAO_API_KEY="your_api_key_here"
